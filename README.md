@@ -1,37 +1,29 @@
 # ember-net-flow-hub
 
-`ember-net-flow-hub` is a TypeScript project for Networking. It turns design a TypeScript verification harness for flow systems, covering storage recovery, log and snapshot fixtures, and failure-oriented tests into a small local model with readable fixtures and a direct verification command.
+`ember-net-flow-hub` is a TypeScript project in networking. Its focus is to design a TypeScript verification harness for flow systems, covering storage recovery, log and snapshot fixtures, and failure-oriented tests.
 
-## Reading Ember Net Flow Hub
+## Project Rationale
 
-Start with the README, then open `metadata/project.json` to check the constants behind the examples. After that, `fixtures/cases.csv` shows the compact path and `examples/extended_cases.csv` gives a wider look at the same rule.
+The point is to make a small domain rule concrete enough that a reader can change it and immediately see what broke.
 
-## What It Does
+## Ember Net Flow Hub Review Notes
 
-- Includes extended examples for retry behavior, including `surge` and `degraded`.
-- Documents policy decisions tradeoffs in `docs/operations.md`.
-- Runs locally with a single verification command and no external credentials.
-- Stores project constants and verification metadata in `metadata/project.json`.
-- Adds a repository audit script that checks structure before running the language verifier.
+`stale` and `stress` are the cases worth reading first. They show the optimistic and cautious ends of the fixture.
 
-## Purpose
+## Feature Set
 
-This project keeps the domain idea close to the tests. That makes it useful as a reference implementation, a small experiment, or a starting point for a more specialized tool.
+- `fixtures/domain_review.csv` adds cases for packet span and retry pressure.
+- `metadata/domain-review.json` records the same cases in structured form.
+- `config/review-profile.json` captures the read order and the two review questions.
+- `examples/ember-net-flow-walkthrough.md` walks through the case spread.
+- The TypeScript code includes a review path for `packet span` and `retry pressure`.
+- `docs/field-notes.md` explains the strongest and weakest cases.
 
-## Files Worth Reading
+## Architecture
 
-- `src`: primary implementation
-- `tests`: verification harness
-- `fixtures`: compact golden scenarios
-- `examples`: expanded scenario set
-- `metadata`: project constants and verification metadata
-- `docs`: operations and extension notes
-- `scripts`: local verification and audit commands
-- `package.json`: Node package scripts
+The repository has two validation layers: the original compact policy fixture and the domain review fixture. They are separate so one can change without hiding failures in the other.
 
-## Design Sketch
-
-The core is a scoring model over demand, capacity, latency, risk, and weight. That keeps packet shape, socket state, and retry behavior in one explicit decision path. The threshold is 172, with risk penalty 6, latency penalty 3, and weight bonus 6. The TypeScript project keeps types close to the model and compiles before running its checks.
+The added TypeScript path is deliberately direct, with fixtures doing most of the explaining.
 
 ## Usage
 
@@ -39,31 +31,10 @@ The core is a scoring model over demand, capacity, latency, risk, and weight. Th
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1
 ```
 
-This runs the language-level build or test path against the compact fixture set.
+## Test Command
 
-## Fixture Notes
+The check exercises the source code and the review fixture. `stale` is the high score at 276; `stress` is the low score at 143.
 
-The examples are meant to be readable before they are exhaustive. They cover enough variation to show how latency and risk can pull a decision below the threshold.
+## Next Improvements
 
-## Verification
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit.ps1
-```
-
-The audit command checks repository structure and README constraints before it delegates to the verifier.
-
-## Limits
-
-The repository favors determinism over breadth. It does not pull live data, keep secrets, or depend on network access for verification.
-
-## Next Directions
-
-- Add a loader for `examples/extended_cases.csv` and promote selected cases into the language test suite.
-- Add a short report command that prints the score breakdown for a single scenario.
-- Add malformed input fixtures so the failure path is as visible as the happy path.
-- Add one more networking fixture that focuses on a malformed or borderline input.
-
-## Setup
-
-Clone the repository, enter the directory, and run the verifier. No database server, cloud account, or token is required.
+The repository is intentionally scoped to local checks. I would expand it by adding adversarial fixtures before adding features.
